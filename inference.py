@@ -13,9 +13,9 @@ from openai import OpenAI
 from voiceiq.client import VoiceIQEnv
 from voiceiq.models import AudioAction
 
-API_KEY = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
-API_BASE_URL = os.getenv("API_BASE_URL") or "https://api.groq.com/openai/v1"
-MODEL_NAME = os.getenv("MODEL_NAME") or "llama-3.3-70b-versatile"
+API_BASE_URL = os.getenv("API_BASE_URL", "https://api.groq.com/openai/v1")
+MODEL_NAME = os.getenv("MODEL_NAME", "llama-3.3-70b-versatile")
+HF_TOKEN = os.getenv("HF_TOKEN")
 IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME") or "voiceiq-env:latest"
 TASK_NAME = os.getenv("VOICEIQ_TASK", "single_emotion")
 BENCHMARK = "voiceiq"
@@ -176,7 +176,7 @@ async def run_episode(client: OpenAI, env: VoiceIQEnv, task_id: str) -> float:
 
 
 async def main() -> None:
-    client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+    client = OpenAI(base_url=API_BASE_URL, api_key=HF_TOKEN)
 
     tasks = ["single_emotion", "low_intensity", "escalation"]
     all_scores = []
