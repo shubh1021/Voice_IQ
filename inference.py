@@ -166,6 +166,9 @@ async def run_episode(client: OpenAI, env: VoiceIQEnv, task_id: str) -> float:
         score = sum(rewards) / len(rewards) if rewards else 0.0
         success = score >= SUCCESS_SCORE_THRESHOLD
 
+    except Exception as e:
+        log_step(step=steps_taken+1, action="error", reward=0.0, done=True, error=str(e))
+
     finally:
         try:
             await env.close()
@@ -183,9 +186,16 @@ async def main() -> None:
     all_scores = []
 
     for task_id in tasks:
-        env = VoiceIQEnv(base_url="https://shubh0107-voiceiq.hf.space")
-        score = await run_episode(client, env, task_id)
-        all_scores.append(score)
+        try:
+            if IMAGE_NAME and IMAGE_NAME != "voiceiq-env:latest":
+                env = await VoiceIQEnv.from_docker_image(IMAGE_NAME)
+            else:
+                env = VoiceIQEnv(base_url="https://shubh0107-voiceiq.hf.space")
+            score = await run_episode(client, env, task_id)
+            all_scores.append(score)
+        except Exception as e:
+            print(f"[DEBUG] Episode failed for {task_id}: {e}", flush=True)
+            all_scores.append(0.0)
 
     print(f"\n[SUMMARY] avg_score={sum(all_scores)/len(all_scores):.3f}", flush=True)
 
