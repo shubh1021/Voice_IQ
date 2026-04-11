@@ -33,10 +33,13 @@ class VoiceIQEnvironment(Environment):
     def _client(self):
         if self._groq_client is None:
             from openai import OpenAI as _OpenAI
+            api_key = os.environ.get("API_KEY") or os.environ.get("GROQ_API_KEY") or os.environ.get("HF_TOKEN") or os.environ.get("OPENAI_API_KEY")
+            if not api_key:
+                raise ValueError("No API key found. Set API_KEY, GROQ_API_KEY, HF_TOKEN, or OPENAI_API_KEY.")
             self._groq_client = _OpenAI(
-                api_key=os.environ.get("API_KEY") or os.environ.get("GROQ_API_KEY") or os.environ.get("HF_TOKEN"),
+                api_key=api_key,
                 base_url=os.environ.get("API_BASE_URL", "https://api.groq.com/openai/v1")
-            )
+                )
         return self._groq_client
 
     def reset(self, task_id: str = None) -> AudioObservation:
