@@ -188,7 +188,14 @@ async def main() -> None:
     for task_id in tasks:
         try:
             if IMAGE_NAME and IMAGE_NAME != "voiceiq-env:latest":
-                env = await VoiceIQEnv.from_docker_image(IMAGE_NAME)
+                env = await VoiceIQEnv.from_docker_image(
+                IMAGE_NAME,
+                env_vars={
+                    "API_KEY": API_KEY,
+                    "API_BASE_URL": API_BASE_URL,
+                    "MODEL_NAME": MODEL_NAME,
+                }
+            )
             else:
                 env = VoiceIQEnv(base_url="https://shubh0107-voiceiq.hf.space")
             score = await run_episode(client, env, task_id)
